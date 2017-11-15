@@ -16,11 +16,8 @@ data class Frame(val number: Int) {
     private val totalPinsForPlayer = { player: Player ->
         frameResults
                 .getOrDefault(player, emptyList())
-                .map { rollResult: RollResult ->
-                    if (rollResult is Strike) 10;
-                    else if (rollResult is Spare) 10;
-                    else (rollResult as? PinsKnockedDown)?.numberOfPins ?: 0;
-                }.sum()
+                .map(RollResult::numberOfPins)
+                .sum()
     }
 
     private val rollCausesExceedingOfTotalPins = { player: Player, pinsKnockedDown: Int -> totalPinsForPlayer(player) + pinsKnockedDown > 10 }
