@@ -1,9 +1,9 @@
-sealed class RollResult(val numberOfPins: Int)
+sealed class Roll(numberOfPins: Int)
 
-data class PinsKnockedDown(val number: Int) : RollResult(number)
+data class NormalRoll(val numberOfPins: Int): Roll(numberOfPins)
 
-object NoPinsKnockedDown: RollResult(0)
+object NoPinsKnockedDown: Roll(0)
 
-object Strike : RollResult(10)
+object Strike : Roll(10)
 
-class Spare(numberOfPinsFirstRoll: Int, val numberOfPinsSecondRoll: Int) : RollResult(numberOfPinsFirstRoll + numberOfPinsSecondRoll)
+data class Spare(val numberOfPinsFirstRoll: Int,  val numberOfPinsSecondRoll: Int) : Roll(numberOfPinsFirstRoll + numberOfPinsSecondRoll)

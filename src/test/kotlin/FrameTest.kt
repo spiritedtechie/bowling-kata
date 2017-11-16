@@ -9,44 +9,70 @@ class GetUserDetailsTest {
 
     @Before
     fun setUp() {
-        frame = Frame(1);
+        frame = Frame(1)
     }
 
     @Test
-    fun shouldRecordPinsKnockedDownIfLessThan10PinsKnockedDown() {
-        frame.rolled(3);
+    fun shouldRecordTwoRollsIfLessThan10PinsKnockedDown() {
+        frame.rolled(3, 1)
 
-        assertEquals(frame.getFrameResults().last(), PinsKnockedDown(3));
+        assertEquals(2, frame.getFrameResults().size)
+        assertEquals(NormalRoll(3), frame.getFrameResults().first())
+        assertEquals(NormalRoll(1), frame.getFrameResults().last())
     }
 
     @Test
     fun shouldRecordStrikeIf10PinsKnockedDownInFirstRoll() {
-        frame.rolled(10);
+        frame.rolled(10, 0)
 
-        assertTrue(frame.getFrameResults().last() is Strike);
-    }
-
-    @Test(expected = InvalidRollException::class)
-    fun shouldThrowInvalidRollExceptionIfInvalidNumberOfPinsOnFirstRoll_GreaterThan10() {
-        frame.rolled(12);
+        assertEquals(1, frame.getFrameResults().size)
+        assertTrue(frame.getFrameResults().first() is Strike)
     }
 
     @Test
-    fun shouldThrowInvalidRollExceptionIfInvalidNumberOfPinsOnFirstRoll_Zero() {
-        frame.rolled(0);
+    fun shouldRecordNoPinsKnockedDownIfNoPinsKnockedDownInFirstRoll() {
+        frame.rolled(0, 1)
 
-        assertTrue(frame.getFrameResults().last() is NoPinsKnockedDown);
+        assertEquals(2, frame.getFrameResults().size)
+        assertTrue(frame.getFrameResults().first() is NoPinsKnockedDown)
+        assertEquals(NormalRoll(1), frame.getFrameResults().last())
+    }
+
+    @Test
+    fun shouldRecordNoPinsKnockedDownIfNoPinsKnockedDownInSecondRoll() {
+        frame.rolled(1, 0)
+
+        assertEquals(2, frame.getFrameResults().size)
+        assertEquals(NormalRoll(1), frame.getFrameResults().first())
+        assertTrue(frame.getFrameResults().last() is NoPinsKnockedDown)
+    }
+
+    @Test
+    fun shouldRecordSpareIf10PinsKnockedDownOverTwoRolls() {
+        frame.rolled(4, 6)
+
+        assertEquals(1, frame.getFrameResults().size)
+        assertEquals(Spare(4, 6), frame.getFrameResults().first())
     }
 
     @Test(expected = InvalidRollException::class)
-    fun shouldThrowInvalidRollExceptionIfInvalidNumberOfPinsOnFirstRoll_Negative() {
-        frame.rolled(-1);
+    fun shouldThrowInvalidRollExceptionIfTotalPinsGreaterThan10() {
+        frame.rolled(9, 2)
     }
 
     @Test(expected = InvalidRollException::class)
-    fun shouldThrowInvalidRollExceptionIfRollCausesExceedingOfPinLimit() {
-        frame.rolled(5);
-        frame.rolled(6);
+    fun shouldThrowInvalidRollExceptionIfInvalidNumberOfPinsInFirstRoll() {
+        frame.rolled(-1, 1)
+    }
+
+    @Test(expected = InvalidRollException::class)
+    fun shouldThrowInvalidRollExceptionIfInvalidNumberOfPinsInSecondRoll() {
+        frame.rolled(1, -1)
+    }
+
+    @Test(expected = InvalidRollException::class)
+    fun shouldThrowInvalidRollExceptionIfRollsExceedPinLimit() {
+        frame.rolled(5, 6)
     }
 }
 

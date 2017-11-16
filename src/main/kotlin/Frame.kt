@@ -1,47 +1,43 @@
 data class Frame(private val number: Int) {
 
     private val totalPins = 10;
-    private var rollResults: List<RollResult> = emptyList();
+    private var rollResults: List<Roll> = emptyList();
 
-    private val wasAStrike = {
-        pinsKnockedDownInRoll: Int ->
-        pinsKnockedDownInRoll == totalPins
+    private val invalidNumberOfPins = { pinsInFirstRoll: Int, pinsInSecondRoll: Int ->
+        pinsInFirstRoll < 0 || pinsInSecondRoll < 0
     }
 
-    private val noPinsKnockedDown = {
-        pinsKnockedDownInRoll: Int -> pinsKnockedDownInRoll == 0
+    private val rollCausesExceedingOfTotalPins = { pinsInFirstRoll: Int, pinsInSecondRoll: Int ->
+        pinsInFirstRoll + pinsInSecondRoll > 10
     }
 
-    private val invalidNumberOfPins = {
-        pinsKnockedDownInRoll: Int ->
-        pinsKnockedDownInRoll > 10 || pinsKnockedDownInRoll < 0
-    }
+    fun rolled(firstRoll: Int, secondRoll: Int) {
 
-    private val totalPinsSoFar = {
-        rollResults
-                .map(RollResult::numberOfPins)
-                .sum()
-    }
+        if (invalidNumberOfPins(firstRoll, secondRoll)) throw InvalidRollException()
+        if (rollCausesExceedingOfTotalPins(firstRoll, secondRoll)) throw InvalidRollException()
 
-    private val rollCausesExceedingOfTotalPins = { pinsKnockedDown: Int -> totalPinsSoFar() + pinsKnockedDown > 10 }
+        if (firstRoll == totalPins && secondRoll == 0) {
+            addRollResult(Strike);
+        } else if (firstRoll + secondRoll == 10) {
+                addRollResult(Spare(firstRoll, secondRoll))
+        } else if (firstRoll + secondRoll < totalPins) {
+            if (firstRoll == 0) {
+                addRollResult(NoPinsKnockedDown)
+            } else {
+                addRollResult(NormalRoll(firstRoll))
+            }
 
-    fun rolled(numberOfPins: Int) {
-
-        if (invalidNumberOfPins(numberOfPins)) throw InvalidRollException()
-        if (rollCausesExceedingOfTotalPins(numberOfPins)) throw InvalidRollException()
-
-        if (noPinsKnockedDown(numberOfPins)) {
-            addRollResult(NoPinsKnockedDown)
-        } else if (wasAStrike(numberOfPins)) {
-            addRollResult(Strike)
-        } else {
-            addRollResult(PinsKnockedDown(numberOfPins))
+            if (secondRoll == 0) {
+                addRollResult(NoPinsKnockedDown)
+            } else {
+                addRollResult(NormalRoll(secondRoll))
+            }
         }
     }
 
-    private fun addRollResult(newRollResult: RollResult) {
-        rollResults += rollResults + newRollResult
+    private fun addRollResult(newRollResult: Roll) {
+        rollResults += newRollResult
     }
 
-    fun getFrameResults(): List<RollResult> = rollResults
+    fun getFrameResults(): List<Roll> = rollResults
 }
