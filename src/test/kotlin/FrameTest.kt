@@ -18,7 +18,7 @@ class GetUserDetailsTest {
 
         frame.rolled(player, 3);
 
-        assertEquals(player.getPlayerResults(frame).last(), PinsKnockedDown(3));
+        assertEquals(frame.getPlayerResults(player).last(), PinsKnockedDown(3));
     }
 
     @Test
@@ -27,7 +27,7 @@ class GetUserDetailsTest {
 
         frame.rolled(player, 10);
 
-        assertTrue(player.getPlayerResults(frame).last() is Strike);
+        assertTrue(frame.getPlayerResults(player).last() is Strike);
     }
 
     @Test(expected = InvalidRollException::class)
