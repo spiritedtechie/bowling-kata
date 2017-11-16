@@ -3,35 +3,36 @@ data class Frame(private val number: Int) {
     private val totalPins = 10;
     private var rollResults: List<Roll> = emptyList();
 
-    private val invalidNumberOfPins = { pinsInFirstRoll: Int, pinsInSecondRoll: Int ->
-        pinsInFirstRoll < 0 || pinsInSecondRoll < 0
+    private val invalidNumberOfPins = { pinCount1: Int, pinCount2: Int ->
+        pinCount1 < 0 || pinCount2 < 0
     }
 
-    private val rollCausesExceedingOfTotalPins = { pinsInFirstRoll: Int, pinsInSecondRoll: Int ->
-        pinsInFirstRoll + pinsInSecondRoll > 10
+    private val exceedsTotalAllowablePins = { pinCount1: Int, pinCount2: Int ->
+        pinCount1 + pinCount2 > 10
     }
 
-    fun rolled(firstRoll: Int, secondRoll: Int) {
+    private val isStrike = { pinCount1: Int, pinCount2: Int -> pinCount1 == totalPins && pinCount2 == 0 }
+    private val isSpare = { pinCount1: Int, pinCount2: Int -> pinCount1 + pinCount2 == 10 }
 
-        if (invalidNumberOfPins(firstRoll, secondRoll)) throw InvalidRollException()
-        if (rollCausesExceedingOfTotalPins(firstRoll, secondRoll)) throw InvalidRollException()
+    fun rolled(pinCount1: Int, pinCount2: Int) {
+        if (invalidNumberOfPins(pinCount1, pinCount2)) throw InvalidRollException()
+        if (exceedsTotalAllowablePins(pinCount1, pinCount2)) throw InvalidRollException()
 
-        if (firstRoll == totalPins && secondRoll == 0) {
+        if (isStrike(pinCount1, pinCount2)) {
             addRollResult(Strike);
-        } else if (firstRoll + secondRoll == 10) {
-                addRollResult(Spare(firstRoll, secondRoll))
-        } else if (firstRoll + secondRoll < totalPins) {
-            if (firstRoll == 0) {
-                addRollResult(NoPinsKnockedDown)
-            } else {
-                addRollResult(NormalRoll(firstRoll))
-            }
+        } else if (isSpare(pinCount1, pinCount2)) {
+            addRollResult(Spare(pinCount1, pinCount2))
+        } else {
+            handleOrdinaryRoll(pinCount1)
+            handleOrdinaryRoll(pinCount2)
+        }
+    }
 
-            if (secondRoll == 0) {
-                addRollResult(NoPinsKnockedDown)
-            } else {
-                addRollResult(NormalRoll(secondRoll))
-            }
+    private fun handleOrdinaryRoll(pinCount: Int) {
+        if (pinCount == 0) {
+            addRollResult(NoPinsKnockedDown)
+        } else {
+            addRollResult(NormalRoll(pinCount))
         }
     }
 
