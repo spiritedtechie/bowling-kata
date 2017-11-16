@@ -18,22 +18,19 @@ data class Frame(private val number: Int) {
         if (invalidNumberOfPins(pinCount1, pinCount2)) throw InvalidRollException()
         if (exceedsTotalAllowablePins(pinCount1, pinCount2)) throw InvalidRollException()
 
-        if (isStrike(pinCount1, pinCount2)) {
-            addRollResult(Strike);
-        } else if (isSpare(pinCount1, pinCount2)) {
-            addRollResult(Spare(pinCount1, pinCount2))
-        } else {
-            handleOrdinaryRoll(pinCount1)
-            handleOrdinaryRoll(pinCount2)
+        when {
+            isStrike(pinCount1, pinCount2) -> addRollResult(Strike)
+            isSpare(pinCount1, pinCount2) -> addRollResult(Spare(pinCount1, pinCount2))
+            else -> {
+                handleOrdinaryRoll(pinCount1)
+                handleOrdinaryRoll(pinCount2)
+            }
         }
     }
 
     private fun handleOrdinaryRoll(pinCount: Int) {
-        if (pinCount == 0) {
-            addRollResult(NoPinsKnockedDown)
-        } else {
-            addRollResult(NormalRoll(pinCount))
-        }
+        if (pinCount == 0) addRollResult(NoPinsKnockedDown)
+        else addRollResult(NormalRoll(pinCount))
     }
 
     private fun addRollResult(newRollResult: Roll) {
