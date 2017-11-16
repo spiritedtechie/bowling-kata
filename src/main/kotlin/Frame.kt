@@ -1,4 +1,4 @@
-data class Frame(val number: Int) {
+data class Frame(private val number: Int) {
 
     private val totalPins = 10;
     private var rollResults: List<RollResult> = emptyList();
@@ -25,28 +25,21 @@ data class Frame(val number: Int) {
 
     private val rollCausesExceedingOfTotalPins = { pinsKnockedDown: Int -> totalPinsSoFar() + pinsKnockedDown > 10 }
 
-    fun rolled(pinsKnockedDown: Int): Boolean {
+    fun rolled(numberOfPins: Int) {
 
-        if (invalidNumberOfPins(pinsKnockedDown)) {
-            throw InvalidRollException();
-        }
+        if (invalidNumberOfPins(numberOfPins)) throw InvalidRollException()
+        if (rollCausesExceedingOfTotalPins(numberOfPins)) throw InvalidRollException()
 
-        if (rollCausesExceedingOfTotalPins(pinsKnockedDown)) {
-            throw InvalidRollException();
-        }
-
-        if (noPinsKnockedDown(pinsKnockedDown)) {
-            addNewRollResult(NoPinsKnockedDown)
-        } else if (wasAStrike(pinsKnockedDown)) {
-            addNewRollResult(Strike)
+        if (noPinsKnockedDown(numberOfPins)) {
+            addRollResult(NoPinsKnockedDown)
+        } else if (wasAStrike(numberOfPins)) {
+            addRollResult(Strike)
         } else {
-            addNewRollResult(PinsKnockedDown(pinsKnockedDown))
+            addRollResult(PinsKnockedDown(numberOfPins))
         }
-
-        return true;
     }
 
-    private fun addNewRollResult(newRollResult: RollResult) {
+    private fun addRollResult(newRollResult: RollResult) {
         rollResults += rollResults + newRollResult
     }
 
