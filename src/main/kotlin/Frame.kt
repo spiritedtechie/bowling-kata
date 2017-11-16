@@ -1,25 +1,29 @@
 data class Frame(val number: Int) {
 
     private val totalPins = 10;
-    private var frameResults: List<RollResult> = emptyList();
+    private var rollResults: List<RollResult> = emptyList();
 
-    private val rollWasAStrike = {
+    private val wasAStrike = {
         pinsKnockedDownInRoll: Int ->
         pinsKnockedDownInRoll == totalPins
     }
 
-    private val invalidNumberOfPins = {
-        pinsKnockedDownInRoll: Int ->
-        pinsKnockedDownInRoll > 10 || pinsKnockedDownInRoll <= 0
+    private val noPinsKnockedDown = {
+        pinsKnockedDownInRoll: Int -> pinsKnockedDownInRoll == 0
     }
 
-    private val totalPinsForPlayer = {
-        frameResults
+    private val invalidNumberOfPins = {
+        pinsKnockedDownInRoll: Int ->
+        pinsKnockedDownInRoll > 10 || pinsKnockedDownInRoll < 0
+    }
+
+    private val totalPinsSoFar = {
+        rollResults
                 .map(RollResult::numberOfPins)
                 .sum()
     }
 
-    private val rollCausesExceedingOfTotalPins = { pinsKnockedDown: Int -> totalPinsForPlayer() + pinsKnockedDown > 10 }
+    private val rollCausesExceedingOfTotalPins = { pinsKnockedDown: Int -> totalPinsSoFar() + pinsKnockedDown > 10 }
 
     fun rolled(pinsKnockedDown: Int): Boolean {
 
@@ -31,7 +35,9 @@ data class Frame(val number: Int) {
             throw InvalidRollException();
         }
 
-        if (rollWasAStrike(pinsKnockedDown)) {
+        if (noPinsKnockedDown(pinsKnockedDown)) {
+            addNewRollResult(NoPinsKnockedDown)
+        } else if (wasAStrike(pinsKnockedDown)) {
             addNewRollResult(Strike)
         } else {
             addNewRollResult(PinsKnockedDown(pinsKnockedDown))
@@ -41,8 +47,8 @@ data class Frame(val number: Int) {
     }
 
     private fun addNewRollResult(newRollResult: RollResult) {
-        frameResults += frameResults + newRollResult
+        rollResults += rollResults + newRollResult
     }
 
-    fun getFrameResults(): List<RollResult> = frameResults
+    fun getFrameResults(): List<RollResult> = rollResults
 }

@@ -31,9 +31,11 @@ class GetUserDetailsTest {
         frame.rolled(12);
     }
 
-    @Test(expected = InvalidRollException::class)
+    @Test
     fun shouldThrowInvalidRollExceptionIfInvalidNumberOfPinsOnFirstRoll_Zero() {
         frame.rolled(0);
+
+        assertTrue(frame.getFrameResults().last() is NoPinsKnockedDown);
     }
 
     @Test(expected = InvalidRollException::class)
